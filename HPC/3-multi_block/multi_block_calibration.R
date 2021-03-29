@@ -44,7 +44,7 @@ Lambda_single=LambdaGridNetwork(data=simul$data)
 
 # Unconstrained calibration (subsampling)
 foo_unconstr=function(){
-out=GraphicalModel(data=simul$data, pk=pk, Lambda=Lambda_single, lambda_other_blocks=0.01, start="cold", PFER_method="MB")
+out=GraphicalModel(data=simul$data, pk=pk, Lambda=Lambda_single, lambda_other_blocks=0.1, start="cold", PFER_method="MB")
 assign("out", out, envir=.GlobalEnv)
 }
 tmptime=system.time(foo_unconstr())
