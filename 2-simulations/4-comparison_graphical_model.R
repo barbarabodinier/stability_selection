@@ -51,8 +51,7 @@ write.table(mytable, paste0("Tables/2-simulations/Table_precision_recall_",simul
             row.names=FALSE, col.names=TRUE, quote=FALSE, eol="££\n", sep="&")
 
 # Saving figure
-metric="F1_score"
-for (metric in c("precision","recall","F1_score")){
+for (metric in c("F1_score")){
   {pdf(paste0("Figures/2-simulations/Boxplot_", metric, "_", simul_study_id, "_", topology, "_PFER_thr_", PFER_thr, ".pdf"), 
        width=12, height=4.5)
     par(mar=c(7,5,3,1), mfrow=c(1,3))
