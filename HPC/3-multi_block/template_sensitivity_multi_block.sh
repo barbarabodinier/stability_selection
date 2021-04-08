@@ -1,9 +1,9 @@
 #!/bin/sh
-#PBS -l walltime=30:00:00
+#PBS -l walltime=60:00:00
 #PBS -l select=1:ncpus=1:mem=5gb
 #PBS -N simul_sensitivity_multi
 #PBS -q med-bio
-#PBS -J 1-1100
+#PBS -J 1-5000
 
 cd /work/bbodinie/stability_selection/Scripts/3-multi_block
 module load anaconda3/personal
