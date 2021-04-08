@@ -44,6 +44,18 @@ Lambda_single=LambdaGridNetwork(data=simul$data, Lambda_cardinal=30)
 Lambda_blocks=expand.grid(Lambda_single,Lambda_single)
 Lambda_blocks=as.matrix(cbind(Lambda_blocks,Lambda_blocks[,1]))
 
+# Single-block
+foo_unconstr=function(){
+out=GraphicalModel(data=simul$data,  Lambda=Lambda_single, start="cold", PFER_method="MB")
+assign("out", out, envir=.GlobalEnv)
+}
+tmptime=system.time(foo_unconstr())
+A=Adjacency(out)
+nperf=SelectionPerformance(theta=A, theta_star=simul$theta, pk=pk)
+rownames(nperf)=c("Overall",1:3)
+perf_full=cbind(nperf, time=as.numeric(tmptime[1]))
+myperfs=perf_full
+
 # Multi-parameters
 foo_unconstr=function(){
 out=GraphicalModel(data=simul$data, pk=pk, Lambda=Lambda_blocks, start="cold", PFER_method="MB")
@@ -56,9 +68,9 @@ A=Adjacency(out)
 nperf=SelectionPerformance(theta=A, theta_star=simul$theta, pk=pk)
 rownames(nperf)=c("Overall",1:3)
 perf_full=cbind(nperf, time=as.numeric(tmptime[1]))
+myperfs=rbind(myperfs, perf_full)
 
 # Multi-block (different lambda_dense)
-myperfs=perf_full
 for (lambda_dense in c(0,0.001,0.01,0.1,0.5,1)){
 print(lambda_dense)
 foo_unconstr=function(){
