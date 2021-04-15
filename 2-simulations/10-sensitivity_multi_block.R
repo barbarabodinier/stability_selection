@@ -50,7 +50,3 @@ mytable[19,1]="Multi-block"
 write.xlsx(mytable, file="Tables/2-simulations/Sensitivity_multi_block_table.xlsx")
 write.table(mytable, file="Tables/2-simulations/Sensitivity_multi_block_table.txt", 
             quote=FALSE, eol="@@ \n", sep="&", row.names=FALSE)
-
-
-
-
