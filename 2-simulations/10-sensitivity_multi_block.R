@@ -15,36 +15,26 @@ niter=1000
 
 # Loading the simulation results 
 simul_id=1
-perf=readRDS(paste0("Results/2-simulations/3-multi_block/Simulations_",simul_study_id,"_",topology,"/Performances_single_",simul_id,"_merged_PFER_thr_",PFER_thr,".rds"))
-perf_block=readRDS(paste0("Results/2-simulations/3-multi_block/Sensitivity_",simul_study_id,"_",topology,"/Performances_multi_sensitivity_",simul_id,"_merged_PFER_thr_",PFER_thr,".rds"))
+subtable=readRDS(paste0("Results/2-simulations/3-multi_block/Sensitivity_",simul_study_id,"_",topology,"/Performances_multi_sensitivity_",simul_id,"_merged_PFER_thr_",PFER_thr,".rds"))
+subtable=subtable[,,1:niter]
 
-# Summarising the simulation results
-mynames=c("perf", "perf_block")
-names(mynames)=c("single", "multi")
-for (k in 1:2){
-  subtable=eval(parse(text=mynames[k]))
-  
-  # Computing the median performances
-  tmpmedian=apply(subtable, c(1,2), FUN=function(x){median(as.numeric(x))})
-  mymedian=tmpmedian
-  mymedian[,c("precision", "recall", "F1_score")]=formatC(tmpmedian[,c("precision", "recall", "F1_score")], format="f", digits=3)
-  mymedian[,c("TP", "FP", "FN", "time")]=formatC(tmpmedian[,c("TP", "FP", "FN", "time")], format="f", digits=0)
-  mymedian=mymedian[,c("TP", "FP", "FN", "precision", "recall", "F1_score", "time")]
-  
-  # Computing the inter-quartile range of performances
-  tmpiqr=apply(subtable, c(1,2), FUN=function(x){IQR(as.numeric(x))})
-  myiqr=tmpiqr
-  myiqr[,c("precision", "recall", "F1_score")]=formatC(tmpiqr[,c("precision", "recall", "F1_score")], format="f", digits=3)
-  myiqr[,c("TP", "FP", "FN", "time")]=formatC(tmpiqr[,c("TP", "FP", "FN", "time")], format="f", digits=0)
-  myiqr=myiqr[,c("TP", "FP", "FN", "precision", "recall", "F1_score", "time")]
-  
-  # Combining the metrics
-  mytable=matrix(paste0(mymedian, " [", myiqr, "]"), ncol=ncol(mymedian))
-  colnames(mytable)=colnames(mymedian)
-  
-  # Storing the output
-  assign(paste0("mytable_",names(mynames)[k]), mytable)
-}
+# Computing the median performances
+tmpmedian=apply(subtable, c(1,2), FUN=function(x){median(as.numeric(x))})
+mymedian=tmpmedian
+mymedian[,c("precision", "recall", "F1_score")]=formatC(tmpmedian[,c("precision", "recall", "F1_score")], format="f", digits=3)
+mymedian[,c("TP", "FP", "FN", "time")]=formatC(tmpmedian[,c("TP", "FP", "FN", "time")], format="f", digits=0)
+mymedian=mymedian[,c("TP", "FP", "FN", "precision", "recall", "F1_score", "time")]
+
+# Computing the inter-quartile range of performances
+tmpiqr=apply(subtable, c(1,2), FUN=function(x){IQR(as.numeric(x))})
+myiqr=tmpiqr
+myiqr[,c("precision", "recall", "F1_score")]=formatC(tmpiqr[,c("precision", "recall", "F1_score")], format="f", digits=3)
+myiqr[,c("TP", "FP", "FN", "time")]=formatC(tmpiqr[,c("TP", "FP", "FN", "time")], format="f", digits=0)
+myiqr=myiqr[,c("TP", "FP", "FN", "precision", "recall", "F1_score", "time")]
+
+# Combining the metrics
+mytable=matrix(paste0(mymedian, " [", myiqr, "]"), ncol=ncol(mymedian))
+colnames(mytable)=colnames(mymedian)
 
 # Re-formatting the tables
 mytable=rbind(mytable_single, mytable_multi)
