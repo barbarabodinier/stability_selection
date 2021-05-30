@@ -25,6 +25,7 @@ plotname=paste0("Figures/2-simulations/Sensitivity_tau_", simul_study_id, "_", t
     metric=names(ylabs)[metric_id]
     for (simul_id in 1:3){
       performances=readRDS(paste0("Results/2-simulations/1-graphical_model/Sensitivity_tau_",simul_study_id,"_",topology,"/Performances_",simul_id,"_merged.rds"))
+      performances=performances[,,1:1000]
       mylist=list()
       for (k in 1:nrow(performances)){
         mylist=c(mylist, list(as.numeric(performances[k,metric,])))
