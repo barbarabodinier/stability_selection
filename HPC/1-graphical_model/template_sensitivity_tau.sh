@@ -13,6 +13,5 @@ topology={topology_input}
 do_exp={do_exp_input}
 params_id={params_id_input}
 seed=$PBS_ARRAY_INDEX
-PFER_thr={PFER_thr_input}
 
-Rscript sensitivity_tau.R $simul_study_id $topology $do_exp $params_id $seed $PFER_thr
+Rscript sensitivity_tau.R $simul_study_id $topology $do_exp $params_id $seed
