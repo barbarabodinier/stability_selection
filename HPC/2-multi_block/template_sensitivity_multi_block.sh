@@ -5,7 +5,7 @@
 #PBS -q med-bio
 #PBS -J 1-5000
 
-cd /work/bbodinie/stability_selection/Scripts/3-multi_block
+cd /work/bbodinie/stability_selection/Scripts/2-multi_block
 module load anaconda3/personal
 
 simul_study_id={simul_study_id_input}
