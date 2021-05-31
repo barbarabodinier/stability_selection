@@ -108,7 +108,7 @@ V(mygraph)$size <- 0.7 * V(mygraph)$size
 
 # Saving figure
 myasp <- 0.7
-myseed <- 0
+myseed <- 1
 {
   pdf(paste0("Figures/3-applications/Multi_omics_graph_platforms_PFER_", PFER_thr, ".pdf"),
     width = 14, height = myasp * 14
@@ -139,7 +139,7 @@ V(mygraph)$size <- 0.7 * V(mygraph)$size
 
 # Saving figure
 myasp <- 0.7
-myseed <- 0
+myseed <- 1
 {
   pdf(paste0("Figures/3-applications/Multi_omics_graph_chromosomes_PFER_", PFER_thr, ".pdf"), width = 14, height = myasp * 14)
   par(mar = rep(0, 4))
