@@ -38,7 +38,7 @@ simul <- SimulateGraphical(n = n, pk = pk, topology = topology, nu = nu)
 C_hat <- cor(simul$data)
 
 # Lambda path
-Lambda_single <- LambdaGridGraphical(data = simul$data, lambda_path_refined_cardinal = 100)
+Lambda_single <- LambdaGridGraphical(xdata = simul$data, lambda_path_refined_cardinal = 100)
 
 # Unconstrained calibration
 foo_unconstr <- function() {
@@ -48,7 +48,7 @@ foo_unconstr <- function() {
 
 # Running for different numbers of iterations K
 nperf <- NULL
-for (k in c(10, 20, 50, 100, 500, 1000, 2000, 5000, 10000)) {
+for (k in c(10, 20, 50, 100, 500, 1000, 2000, 5000)) {
   print(k)
   tmptime <- system.time(foo_unconstr())
   A <- Adjacency(out)

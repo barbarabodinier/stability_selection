@@ -63,7 +63,7 @@ foo_unconstr <- function() {
 }
 tmptime <- system.time(foo_unconstr())
 print(tmptime)
-print(GetArgmax(out))
+print(Argmax(out))
 A <- Adjacency(out)
 nperf <- SelectionPerformance(theta = A, theta_star = simul$theta, pk = pk)
 rownames(nperf) <- c("Overall", 1:3)
@@ -74,12 +74,12 @@ myperfs <- rbind(myperfs, perf_full)
 for (lambda_dense in c(0, 0.001, 0.01, 0.1, 0.5, 1)) {
   print(lambda_dense)
   foo_unconstr <- function() {
-    out <- GraphicalModel(data = simul$data, pk = pk, Lambda = Lambda_single, lambda_other_blocks = lambda_dense, start = "cold", PFER_method = "MB")
+    out <- GraphicalModel(xdata = simul$data, pk = pk, Lambda = Lambda_single, lambda_other_blocks = lambda_dense, start = "cold", PFER_method = "MB")
     assign("out", out, envir = .GlobalEnv)
   }
   tmptime <- system.time(foo_unconstr())
   print(tmptime)
-  print(GetArgmax(out))
+  print(Argmax(out))
   A <- Adjacency(out)
   nperf <- SelectionPerformance(theta = A, theta_star = simul$theta, pk = pk)
   rownames(nperf) <- c("Overall", 1:3)
