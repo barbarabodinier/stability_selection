@@ -7,9 +7,9 @@ library(openxlsx)
 
 # Simulation parameters
 simul_study_id <- 1
-topology <- "random"
-# topology="scale-free"
-PFER_thr <- 50
+# topology <- "random"
+topology="scale-free"
+PFER_thr <- 20
 
 # Template design
 pi_list <- seq(0.6, 0.9, by = 0.05)
@@ -77,21 +77,22 @@ for (simul_id in 1:3) {
   boxplot(
     at = xseq, mylist, col = mycolours, boxcol = "white", whiskcol = mycolours, staplecol = mycolours,
     whisklty = 1, range = 0, las = 2, main = dimensionality[simul_id], cex.main = 1.5,
-    ylab = myylab, cex.lab = 1.5, xaxt = "n", ylim = c(0, 1)
+    ylab = myylab, cex.lab = 1.5, xaxt = "n", ylim = c(0, 1), frame = "F"
   )
   mtext(text = LETTERS[simul_id], side = 2, at = 1.1, line = 3, cex = 2, las = 1)
   abline(h = axTicks(2), lty = 3, col = "grey")
   boxplot(
     at = xseq, mylist, col = mycolours, boxcol = "white", whiskcol = mycolours, staplecol = mycolours,
     whisklty = 1, range = 0, las = 2, add = TRUE,
-    ylab = myylab, cex.lab = 1.5, xaxt = "n"
+    ylab = myylab, cex.lab = 1.5, xaxt = "n", frame = "F"
   )
   abline(h = median19, col = "darkred", lty = 2)
   abline(h = median20, col = "firebrick", lty = 2)
   abline(h = median21, col = "red", lty = 2)
   abline(h = median22, col = "tomato", lty = 2)
   axis(side = 1, at = xseq[(1:3)], labels = c("BIC", "EBIC", "StARS"), las = 2)
-  axis(side = 1, at = xseq[(1:(length(pi_list) * 2)) + 3], labels = rep(pi_list, 2), las = 2)
+  axis(side = 1, at = xseq[(1:length(pi_list)) + 3], labels = pi_list, las = 2)
+  axis(side = 1, at = xseq[(length(pi_list) + 4):(length(pi_list) * 2 + 3)], labels = pi_list, las = 2)
   axis(side = 1, at = xseq[((length(xseq) - 3):length(xseq))], labels = NA)
   axis(
     side = 1, at = xseq[((length(xseq) - 3):length(xseq))], las = 2, line = 0, tick = FALSE, # hadj=0.5,

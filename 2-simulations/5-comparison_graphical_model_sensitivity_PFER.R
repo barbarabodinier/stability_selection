@@ -42,7 +42,7 @@ metric <- "F1_score"
       boxplot(
         at = xseq, mylist, col = mycolours, boxcol = "white", whiskcol = mycolours, staplecol = mycolours,
         whisklty = 1, range = 0, las = 2, main = dimensionality[simul_id], cex.main = 1.5,
-        ylab = myylab, cex.lab = 1.5, xaxt = "n", ylim = c(0, 1)
+        ylab = myylab, cex.lab = 1.5, xaxt = "n", ylim = c(0, 1), frame = "F"
       )
       if (simul_id == 1) {
         mtext(text = LETTERS[i], side = 2, at = 1.1, line = 3, cex = 2, las = 1)
@@ -51,7 +51,7 @@ metric <- "F1_score"
       boxplot(
         at = xseq, mylist, col = mycolours, boxcol = "white", whiskcol = mycolours, staplecol = mycolours,
         whisklty = 1, range = 0, las = 2, add = TRUE,
-        ylab = myylab, cex.lab = 1.5, xaxt = "n"
+        ylab = myylab, cex.lab = 1.5, xaxt = "n", frame = "F"
       )
       abline(h = median19, col = "darkred", lty = 2)
       abline(h = median20, col = "firebrick", lty = 2)

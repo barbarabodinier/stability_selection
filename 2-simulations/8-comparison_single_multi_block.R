@@ -18,8 +18,8 @@ for (simul_id in 1:3) {
   print(simul_id)
 
   # Loading the simulation results
-  perf <- readRDS(paste0("Results/2-simulations/3-multi_block/Simulations_", simul_study_id, "_", topology, "/Performances_single_", simul_id, "_merged_PFER_thr_", PFER_thr, ".rds"))
-  perf_block <- readRDS(paste0("Results/2-simulations/3-multi_block/Simulations_", simul_study_id, "_", topology, "/Performances_multi_", simul_id, "_merged_PFER_thr_", PFER_thr, ".rds"))
+  perf <- readRDS(paste0("Results/2-simulations/2-multi_block/Simulations_", simul_study_id, "_", topology, "/Performances_single_", simul_id, "_merged_PFER_thr_", PFER_thr, ".rds"))
+  perf_block <- readRDS(paste0("Results/2-simulations/2-multi_block/Simulations_", simul_study_id, "_", topology, "/Performances_multi_", simul_id, "_merged_PFER_thr_", PFER_thr, ".rds"))
 
   # Summarising the simulation results
   mynames <- c("perf", "perf_block")
@@ -84,8 +84,8 @@ plotname <- paste0("Figures/2-simulations/Precision_recall_contour_", simul_stud
     print(simul_id)
 
     # Loading the simulation results
-    perf <- readRDS(paste0("Results/2-simulations/3-multi_block/Simulations_", simul_study_id, "_", topology, "/Performances_single_", simul_id, "_merged_PFER_thr_", PFER_thr, ".rds"))
-    perf_block <- readRDS(paste0("Results/2-simulations/3-multi_block/Simulations_", simul_study_id, "_", topology, "/Performances_multi_", simul_id, "_merged_PFER_thr_", PFER_thr, ".rds"))
+    perf <- readRDS(paste0("Results/2-simulations/2-multi_block/Simulations_", simul_study_id, "_", topology, "/Performances_single_", simul_id, "_merged_PFER_thr_", PFER_thr, ".rds"))
+    perf_block <- readRDS(paste0("Results/2-simulations/2-multi_block/Simulations_", simul_study_id, "_", topology, "/Performances_multi_", simul_id, "_merged_PFER_thr_", PFER_thr, ".rds"))
     perf <- perf[, , 1:niter]
     perf_block <- perf_block[, , 1:min(dim(perf)[3], dim(perf_block)[3])]
 
