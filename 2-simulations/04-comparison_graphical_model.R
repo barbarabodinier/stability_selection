@@ -1,14 +1,14 @@
 rm(list = ls())
 setwd("~/Dropbox/Stability_selection/")
 
-library(focus)
+library(sharp)
 library(colorspace)
 library(openxlsx)
 
 # Simulation parameters
 simul_study_id <- 1
-# topology <- "random"
-topology="scale-free"
+topology <- "random"
+# topology="scale-free"
 PFER_thr <- 20
 
 # Template design
@@ -50,7 +50,7 @@ mytable[is.na(mytable)] <- ""
 mytable <- cbind(c(rep("", 10), "Low", rep("", 11), rep("", 10), "Intermediate", rep("", 11), rep("", 10), "High", rep("", 11)), mytable)
 
 write.xlsx(mytable, paste0("Tables/2-simulations/Table_precision_recall_", simul_study_id, "_", topology, "_PFER_thr_", PFER_thr, ".xlsx"),
-  row.names = FALSE, col.names = TRUE
+  rowNames = FALSE, colNames = TRUE
 )
 write.table(mytable, paste0("Tables/2-simulations/Table_precision_recall_", simul_study_id, "_", topology, "_PFER_thr_", PFER_thr, ".txt"),
   row.names = FALSE, col.names = TRUE, quote = FALSE, eol = "££\n", sep = "&"

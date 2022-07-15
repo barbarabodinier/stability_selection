@@ -1,7 +1,7 @@
 rm(list = ls())
 setwd("~/Dropbox/Stability_selection/")
 
-library(focus)
+library(sharp)
 library(abind)
 
 # Simulation parameters
@@ -18,14 +18,23 @@ seed <- 1
 u_list <- 10^-(seq(-1, 5, by = 0.1))
 
 # Simulation
+simul <- SimulateGraphical(
+  n = n, pk = pk, topology = topology,
+  v_within = 1, output_matrices = TRUE
+)
+omega <- simul$omega
+diag(omega) <- 0
+diag(omega) <- apply(abs(omega), 1, sum)
 contrasts <- mycor <- NULL
 for (k in 1:length(u_list)) {
   print(k)
   set.seed(seed)
   u <- u_list[k]
-  simul <- SimulateGraphical(n = n, pk = pk, topology = topology, u = u, output_matrices = TRUE)
-  contrasts <- c(contrasts, Contrast(simul$C))
-  mycor <- abind(mycor, cor(simul$data), along = 3)
+  tmpomega <- omega
+  diag(tmpomega) <- diag(tmpomega) + u
+  sigma <- cov2cor(solve(tmpomega))
+  contrasts <- c(contrasts, Contrast(sigma))
+  mycor <- abind(mycor, sigma, along = 3)
 }
 
 # Saving figure
@@ -51,15 +60,15 @@ plotname <- "Figures/2-simulations/Calibration_u_simulation_graphical_model.pdf"
 
   # Corresponding correlation matrices
   Heatmap(mycor[, , dim(mycor)[3]],
-    colours = c("darkblue", "white", "firebrick3"),
+    col = c("darkblue", "white", "firebrick3"),
     legend_range = c(-1, 1), legend = FALSE, axes = FALSE
   )
   Heatmap(mycor[, , which.max(contrasts)],
-    colours = c("darkblue", "white", "firebrick3"),
+    col = c("darkblue", "white", "firebrick3"),
     legend_range = c(-1, 1), legend = FALSE, axes = FALSE
   )
   Heatmap(mycor[, , 1],
-    colours = c("darkblue", "white", "firebrick3"),
+    col = c("darkblue", "white", "firebrick3"),
     legend_range = c(-1, 1), legend_length = 10, legend = TRUE, axes = FALSE
   )
   dev.off()

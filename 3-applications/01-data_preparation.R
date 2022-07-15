@@ -46,21 +46,14 @@ ids <- intersect(rownames(M_imputed), rownames(covars))
 M_imputed <- M_imputed[ids, ]
 covars <- covars[ids, ]
 
-# Denoising on technical effects and lung cancer
+# Denoising on technical effects
 M_denoised <- matrix(NA, nrow = nrow(M_imputed), ncol = ncol(M_imputed))
 rownames(M_denoised) <- rownames(M_imputed)
 colnames(M_denoised) <- colnames(M_imputed)
-pvalues <- rep(NA, ncol(M_imputed))
 for (k in 1:ncol(M_imputed)) {
   print(k)
-  y <- covars$caco
-  z <- as.character(factor(covars$smoking.status, levels = c("Never", "Former", "Current"), labels = c(0, 1, 2)))
-  z1 <- ifelse(z == 1, yes = 1, no = 0)
-  z2 <- ifelse(z == 2, yes = 1, no = 0)
-  model0 <- lmer(M_imputed[, k] ~ (1 | covars$chip) + (1 | covars$chip.pos) + z1 + z2)
-  model <- lmer(M_imputed[, k] ~ (1 | covars$chip) + (1 | covars$chip.pos) + y + z1 + z2)
-  pvalues[k] <- anova(model0, model)$`Pr(>Chisq)`[2]
-  M_denoised[, k] <- residuals(model) + fixef(model)["z1"] * z1 + fixef(model)["z2"] * z2
+  model <- lmer(M_imputed[, k] ~ (1 | covars$chip) + (1 | covars$chip.pos))
+  M_denoised[, k] <- residuals(model)
 }
 M_denoised <- scale(M_denoised)
 
@@ -97,23 +90,6 @@ ids <- intersect(rownames(covars), rownames(tr))
 tr <- tr[ids, ]
 covars <- covars[ids, ]
 rownames(tr) <- covars$sampleID
-
-# Denoising on lung cancer
-T_denoised <- matrix(NA, nrow = nrow(tr), ncol = ncol(tr))
-rownames(T_denoised) <- rownames(tr)
-colnames(T_denoised) <- colnames(tr)
-pvalues <- rep(NA, ncol(tr))
-for (k in 1:ncol(tr)) {
-  print(k)
-  y <- covars$caco
-  z <- as.character(factor(covars$smoking.status, levels = c("Never", "Former", "Current"), labels = c(0, 1, 2)))
-  z1 <- ifelse(z == 1, yes = 1, no = 0)
-  z2 <- ifelse(z == 2, yes = 1, no = 0)
-  model <- lm(tr[, k] ~ y + z1 + z2)
-  pvalues[k] <- summary(model)$coefficients["y", 4]
-  T_denoised[, k] <- residuals(model) + coef(model)["z1"] * z1 + coef(model)["z2"] * z2
-}
-T_denoised <- scale(T_denoised)
 
 # Saving prepared dataset and annotation file
 saveRDS(tr, paste0("Data/NOWAC_TTX_smoking_", ncol(tr), ".rds"))

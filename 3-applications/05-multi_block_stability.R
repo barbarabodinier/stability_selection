@@ -1,6 +1,6 @@
 rm(list = ls())
 
-library(focus)
+library(sharp)
 library(igraph)
 library(colorspace)
 library(RColorBrewer)
@@ -34,10 +34,10 @@ mycor <- cor(omic)
 plotname <- "Figures/3-applications/Multi_omics_correlation_heatmap.pdf"
 {
   pdf(plotname, width = 8, height = 8)
-  par(mar = c(5, 5, 5, 5))
+  par(mar = c(5, 5, 5, 7))
   Heatmap(mycor,
-    colours = c("darkblue", "white", "firebrick3"),
-    legend_range = c(-1, 1), legend_length = 50, legend = FALSE, axes = FALSE
+    col = c("darkblue", "white", "firebrick3"),
+    legend_range = c(-1, 1), legend_length = 100, legend = TRUE, axes = FALSE
   )
   axis(side = 1, at = c(0, ncol(cpg)), labels = NA)
   axis(side = 1, at = mean(c(0, ncol(cpg))), labels = "DNA methylation", tick = FALSE, cex.axis = 1.5)
@@ -235,7 +235,7 @@ pathway_lipids <- intersect(pathway_lipids, names(mynode_colours))
 mynode_colours[pathway_signal] <- "tomato"
 mynode_colours[pathway_translation] <- "seagreen"
 mynode_colours[pathway_lipids] <- "darkgoldenrod1"
-mynode_colours <- lighten(mynode_colours, amount = 0.05)
+mynode_colours <- lighten(mynode_colours, amount = 0.4)
 mynode_colours[1:ncol(cpg)] <- "skyblue"
 mygraph <- Graph(
   adjacency = adjacency, node_colour = mynode_colours,

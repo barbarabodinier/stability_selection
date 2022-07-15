@@ -1,4 +1,4 @@
-library(focus)
+library(sharp)
 
 # Reading arguments
 args <- commandArgs(trailingOnly = TRUE)
@@ -20,6 +20,7 @@ nu <- params_list[params_id, "nu"]
 v_between <- params_list[params_id, "v_between"]
 
 # Printing
+print(packageVersion("sharp"))
 print(paste("ID of simulation study:", simul_study_id))
 print(paste("Number of observations:", n))
 print(paste("Number of variables:", pk))
@@ -37,7 +38,10 @@ print(filepath)
 
 # Simulation
 set.seed(seed)
-simul <- SimulateGraphical(n = n, pk = pk, topology = topology, nu = nu, v_within = 1, v_between = v_between)
+simul <- SimulateGraphical(
+  n = n, pk = pk, topology = topology,
+  nu_within = nu, nu_between = nu, v_within = 1, v_between = v_between
+)
 
 # Lambda path
 Lambda_single <- LambdaGridGraphical(xdata = simul$data, Lambda_cardinal = 30)

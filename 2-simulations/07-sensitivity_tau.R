@@ -8,7 +8,7 @@ library(colorspace)
 # Simulation parameters
 simul_study_id <- 1
 topology <- "random"
-PFER_thr <- 30
+PFER_thr <- 20
 
 # Template design
 mycolours <- c(colorRampPalette(c("darkred", lighten("red", amount = 0.5)))(9), "navy", "darkolivegreen")

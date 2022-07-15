@@ -1,4 +1,4 @@
-library(focus)
+library(sharp)
 library(stabs)
 library(pulsar)
 library(glassoFast)
@@ -25,6 +25,7 @@ nu <- params_list[params_id, "nu"]
 p <- sum(pk)
 
 # Printing
+print(packageVersion("sharp"))
 print(paste("ID of simulation study:", simul_study_id))
 print(paste("Number of observations:", n))
 print(paste("Number of variables:", pk))
@@ -41,7 +42,7 @@ print(filepath)
 
 # Simulation
 set.seed(seed)
-simul <- SimulateGraphical(n = n, pk = pk, topology = topology, nu = nu)
+simul <- SimulateGraphical(n = n, pk = pk, topology = topology, v_within = 1, nu_within = nu)
 C_hat <- cor(simul$data)
 
 # Lambda path

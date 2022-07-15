@@ -8,12 +8,11 @@ library(colorspace)
 # Simulation parameters
 simul_study_id <- 1
 topology <- "random"
-# topology="scale-free"
-PFER_thr <- 30
+PFER_thr <- 20
 
 # Template design
 pi_list <- seq(0.6, 0.9, by = 0.05)
-mycolours <- c(colorRampPalette(c(lighten("royalblue", amount = 0.6), darken("navy", amount = 0.6)))(9))
+mycolours <- c(colorRampPalette(c(lighten("royalblue", amount = 0.6), darken("navy", amount = 0.6)))(8))
 mypch <- 18
 dimensionality <- c("Low", "Intermediate", "High")
 
@@ -52,13 +51,13 @@ metric <- "F1_score"
     # Making boxplots
     plotCI(
       x = log(sapply(mylist_time, median)), y = sapply(mylist, median), ui = sapply(mylist, quantile, probs = 0.95), li = sapply(mylist, quantile, probs = 0.05),
-      col = mycolours, pch = 18, xlab = "Time (s)", ylab = myylab, cex.lab = 1.5, cex = 1, sfrac = 0.005, las = 1,
-      xlim = c(1, log(max(sapply(mylist_time, quantile, probs = 0.95)))), ylim = c(0, 1), xaxt = "n", main = c("Low", "Intermediate", "High")[simul_id], cex.main = 1.5
+      col = mycolours, pch = 18, xlab = "Time (s)", ylab = myylab, cex.lab = 1.5, cex = 1, sfrac = 0.005, las = 1, bty="n", 
+      xlim = c(0, log(100000)), ylim = c(0, 1), xaxt = "n", main = c("Low", "Intermediate", "High")[simul_id], cex.main = 1.5
     )
     mtext(text = LETTERS[simul_id], side = 2, at = 1, line = 3, cex = 2, las = 1)
-    xticks <- c(1, 10, 100, 1000, 10000, 100000)
-    axis(side = 1, at = log(xticks), labels = xticks)
-    abline(v = axTicks(1), lty = 3, col = "grey")
+    xticks <- as.character(c(1, 10, 100, 1000, 10000, "100000"))
+    axis(side = 1, at = log(as.numeric(xticks)), labels = xticks)
+    abline(v = log(as.numeric(xticks)), lty = 3, col = "grey")
     abline(h = axTicks(2), lty = 3, col = "grey")
     lines(x = log(sapply(mylist_time, median)), y = sapply(mylist, median), col = "grey")
     plotCI(
@@ -71,9 +70,9 @@ metric <- "F1_score"
       col = mycolours, pch = 18, ylab = myylab, cex.lab = 1.5, cex = 1, sfrac = 0.005, las = 1, add = TRUE, err = "x"
     )
     if (simul_id == 1) {
-      legend("bottomright",
+      legend("bottomleft",
         col = mycolours, pch = 18, lty = 1, title = "K", bty = "n",
-        legend = formatC(c(10, 20, 50, 100, 500, 1000, 2000, 5000, 10000),
+        legend = formatC(c(10, 20, 50, 100, 500, 1000, 2000, 5000),
           format = "f", big.mark = ",", digits = 0
         )
       )

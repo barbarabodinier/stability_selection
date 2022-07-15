@@ -7,46 +7,43 @@ CalibrateInformationTheory <- function(x, Lambda, scale = TRUE, gamma = 0.5) {
   } else {
     S <- stats::cov(x)
   }
-
+  
   # Loop over lambda grid
   AIC <- BIC <- EBIC <- rep(NA, length(Lambda))
   path <- array(NA, dim = c(nrow(S), ncol(S), length(Lambda)))
   pb <- utils::txtProgressBar(style = 3)
   for (k in 1:length(Lambda)) {
     utils::setTxtProgressBar(pb, k / length(Lambda))
-
+    
     # Applying the graphical LASSO
     myglasso <- glassoFast::glassoFast(S, rho = Lambda[k])
     omega <- myglasso$wi
-
+    
     # Computing the log-likelihood of the model
     loglik <- (n / 2) * (log(det(omega)) - sum(diag(omega %*% S)))
-
+    
     # Computing the number of edges
     df <- 0.5 * (sum(abs(omega) > 0) - sum(abs(diag(omega)) > 0))
-
+    
     # Computing the AIC and BIC
     AIC[k] <- -2 * loglik + 2 * df
     BIC[k] <- -2 * loglik + df * log(n)
     EBIC[k] <- -2 * loglik + df * (log(n) + 4 * gamma * log(p))
     # BIC=c(BIC, loglik - 0.5 * df * log(n))
     # AIC=c(AIC, loglik - df)
-
+    
     # Storing the adjacency matrix
     A <- ifelse(myglasso$wi != 0, yes = 1, no = 0)
     A <- A + t(A)
     A <- ifelse(A != 0, yes = 1, no = 0)
     path[, , k] <- A
   }
-
+  
   return(list(path = path, AIC = AIC, BIC = BIC, EBIC = EBIC))
 }
 
 
 glasso.graphical_model <- function(x, y, q, scale = TRUE, ...) {
-  if (!requireNamespace("QUIC")) {
-    stop("Package ", sQuote("QUIC"), " is required but not available")
-  }
   extraargs <- list(...)
   if (scale) {
     empirical.cov <- stats::cor(x)
@@ -92,7 +89,7 @@ class(glasso.graphical_model) <- c("function", "graphical_model")
 glasso.pulsar <- function(data, lambda, scale = TRUE) {
   x <- data
   # extraargs <- list(...)
-
+  
   if (scale) {
     empirical.cov <- stats::cor(x)
   } else {
@@ -116,7 +113,44 @@ glasso.pulsar <- function(data, lambda, scale = TRUE) {
 }
 
 
-glmnet.lasso_model <- function(x, y, q, type = c("conservative", "anticonservative"), ...) {
+# ErrorControl <- function(stability, simul, time,
+#                          pi_list = seq(0.6, 0.9, by = 0.05)) {
+#   # Re-formatting the list of pi values
+#   pi_list <- as.character(pi_list)
+#   
+#   # Calculating selection performances for different pi values
+#   perf_mb <- NULL
+#   for (k in 1:length(pi_list)) {
+#     pi_thr <- pi_list[k]
+#     
+#     # Extracting the ID corresponding to pi
+#     pi_id <- which(as.character(stability$params$pi_list) == pi_thr)
+#     
+#     # Extracting the ID corresponding to lambda
+#     lambda_id <- max(which(stability$PFER_2d[, pi_id] <= PFER_thr))
+#     
+#     # Extracting selection status of calibrated model
+#     if (inherits(stability, "variable_selection")) {
+#       selected <- SelectedVariables(stability = stability, argmax_id = c(lambda_id, pi_id))
+#     } else {
+#       selected <- Adjacency(stability = stability, argmax_id = rbind(c(lambda_id, pi_id)))
+#     }
+#     
+#     # Computing selection performances
+#     perf <- data.frame(c(
+#       pi = pi_thr,
+#       SelectionPerformance(theta = selected, theta_star = simul$theta),
+#       time = time
+#     ))
+#     
+#     # Storing selection performances
+#     perf_mb <- rbind(perf_mb, perf)
+#   }
+#   return(perf_mb)
+# }
+
+
+glmnet.lasso_model <- function(x, y, q, lams=NULL, type = c("conservative", "anticonservative"), ...) {
   if (!requireNamespace("glmnet", quietly = TRUE)) {
     stop("Package ", sQuote("glmnet"), " needed but not available")
   }
@@ -125,15 +159,11 @@ glmnet.lasso_model <- function(x, y, q, type = c("conservative", "anticonservati
     x <- stats::model.matrix(~ . - 1, x)
   }
   type <- match.arg(type)
-  if (type == "conservative") {
-    fit <- suppressWarnings(glmnet::glmnet(x, y,
-      pmax = q,
-      ...
-    ))
-  }
-  if (type == "anticonservative") {
-    fit <- glmnet::glmnet(x, y, dfmax = q - 1, ...)
-  }
+  fit <- suppressWarnings(glmnet::glmnet(x, y,
+                                         pmax = q,
+                                         lambda=lams,
+                                         ...
+  ))
   selected <- stats::predict(fit, type = "nonzero")
   selected <- selected[[length(selected)]]
   ret <- logical(ncol(x))
@@ -143,3 +173,5 @@ glmnet.lasso_model <- function(x, y, q, type = c("conservative", "anticonservati
   sequence <- as.matrix(cf != 0)
   return(list(selected = ret, path = sequence))
 }
+
+

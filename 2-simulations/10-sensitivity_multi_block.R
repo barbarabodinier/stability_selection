@@ -15,7 +15,7 @@ niter <- 1000
 
 # Loading the simulation results
 simul_id <- 1
-subtable <- readRDS(paste0("Results/2-simulations/3-multi_block/Sensitivity_", simul_study_id, "_", topology, "/Performances_multi_sensitivity_", simul_id, "_merged_PFER_thr_", PFER_thr, ".rds"))
+subtable <- readRDS(paste0("Results/2-simulations/2-multi_block/Sensitivity_", simul_study_id, "_", topology, "/Performances_multi_sensitivity_", simul_id, "_merged_PFER_thr_", PFER_thr, ".rds"))
 subtable <- subtable[, , 1:niter]
 
 # Computing the median performances
@@ -41,14 +41,18 @@ mytable <- matrix(paste0(mymedian, " [", myiqr, "]"), ncol = ncol(mymedian))
 colnames(mytable) <- colnames(mymedian)
 
 # Re-formatting the tables
-mytable <- rbind(mytable_single, mytable_multi)
+# mytable <- rbind(mytable_single, mytable_multi)
 mytable[rep((2:4), 8) + rep(seq(0, 28, by = 4), each = 3), "time"] <- ""
 tmp <- rep("", nrow(mytable))
 tmp[seq(1, 32, by = 4)] <- c("", "", c(0, 0.001, 0.01, 0.1, 0.5, 1))
-mytable <- cbind(rep("", nrow(mytable)), tmp, mytable)
-mytable[1, 1] <- "Single-block"
-mytable[5, 1] <- "Multi-parameters"
-mytable[19, 1] <- "Multi-block"
+mytable <- cbind(rep("", nrow(mytable)), tmp, rep("", nrow(mytable)), mytable)
+mytable[1, 1] <- "Single"
+mytable[2, 1] <- "block"
+mytable[5, 1] <- "Multi"
+mytable[6, 1] <- "parameters"
+mytable[9, 1] <- "Multi"
+mytable[10, 1] <- "block"
+mytable[,3]=c(rep(c("Overall", "Within 1", "Between", "Within 2"), 8))
 
 # Saving table
 write.xlsx(mytable, file = "Tables/2-simulations/Sensitivity_multi_block_table.xlsx")

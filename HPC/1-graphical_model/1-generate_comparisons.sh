@@ -2,7 +2,7 @@ simul_study_id=1
 
 nrows=$(expr $(cat Simulation_parameters/Simulation_parameters_list_$simul_study_id.txt | wc -l) - 1)
 
-topology="random"
+topology="scale-free"
 PFER_thr=20
 do_exp="FALSE"
 

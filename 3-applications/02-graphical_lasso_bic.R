@@ -1,6 +1,6 @@
 rm(list = ls())
 
-library(focus)
+library(sharp)
 library(igraph)
 library(colorspace)
 library(RColorBrewer)
@@ -34,7 +34,7 @@ rownames(adjacency) <- colnames(adjacency) <- colnames(omic)
 diag(adjacency) <- 0
 
 # Number of block-specific edges
-blockmat <- GetBlockMatrix(pk = pk)
+blockmat <- BlockMatrix(pk = pk)
 sum(adjacency[blockmat == 1]) / 2 # cpg-cpg
 sum(adjacency[blockmat == 2]) / 2 # cpg-transcript
 sum(adjacency[blockmat == 3]) / 2 # transcript-transcript

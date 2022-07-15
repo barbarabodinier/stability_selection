@@ -1,32 +1,27 @@
 rm(list = ls())
 setwd("~/Dropbox/Stability_selection/")
 
-library(focus)
+library(sharp)
 
 # Parameters
 n <- 100
 pk <- 50
-seed <- 1
-PFER_thr <- 10
+seed <- 2
+PFER_thr <- 5
 
 # Simulation
 set.seed(seed)
 simul <- SimulateRegression(
-  n = n, pk = pk, theta = c(rep(1, 10), rep(0, 40)),
-  family = "gaussian", continuous = FALSE, prop_ev = 0.6
+  n = n, pk = pk, theta_xz = cbind(c(rep(1, 10), rep(0, 40))),
+  eta = cbind(1), v_within = c(1),
+  adjacency_x = matrix(0, ncol = pk, nrow = pk),
+  family = "gaussian", continuous = TRUE, ev_xz = 0.7
 )
 table(simul$theta)
 
-# Visualisation of the simulated error
-par(mar = c(5, 5, 1, 1))
-plot(simul$Y_pred, simul$Y,
-  pch = 19, col = "navy",
-  xlab = expression(X), ylab = expression(Y), cex.lab = 1.5
-)
-
 # Stability selection for variable selection
 system.time({
-  out <- VariableSelection(xdata = simul$X, ydata = simul$Y, family = "gaussian", lambda.min.ratio = 1e-2)
+  out <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "gaussian", lambda.min.ratio = 1e-2)
 })
 
 # Extracting selection proportions
@@ -40,33 +35,46 @@ Asum <- A + 2 * simul$theta
 selprop <- selprop[ids]
 Asum <- Asum[ids]
 
+# Incremental analyses
+incremental <- Incremental(
+  xdata = simul$xdata, ydata = simul$ydata,
+  tau = 0.5,
+  stability = out, n_predictors = 50
+)
+
 # Figure parameters
 mylwd <- 3
 mycolours <- c("grey", "tomato", "forestgreen", "navy") # FP: red, TP: navy, FN: forestgreen
 names(mycolours) <- c("TN", "FP", "FN", "TP")
-mar <- c(5, 5, 5, 7)
+mar <- c(1, 5, 6, 10)
 
 # Saving figure
+plotname <- "Figures/1-illustrations/Figure1_variable_selection.pdf"
 {
-  pdf("Figures/1-illustrations/Figure1_variable_selection.pdf", width = 15, height = 12)
+  pdf(plotname, width = 10, height = 14)
   # Calibration plot
-  par(mfrow = c(2, 1), mar = mar)
+  par(mfrow = c(4, 1), mar = mar)
   CalibrationPlot(out)
-  mtext(text = "A", cex = 4, side = 3, at = -9, line = 0)
+  mtext(text = "A", cex = 2.5, side = 3, at = -6, line = 0)
 
   # Selection proportions
   plot(selprop,
-    type = "h", col = mycolours[Asum + 1], las = 1, xaxt = "n", ylim = c(0, 1),
+    type = "h", col = mycolours[Asum + 1], lend = 1,
+    las = 1, xaxt = "n", ylim = c(0, 1),
     xlab = "", ylab = "Selection Proportion", cex.lab = 1.5, lwd = mylwd, bty = "n"
   )
   abline(h = Argmax(out)[2], lty = 2, col = "darkred")
   abline(h = 1 - Argmax(out)[2], lty = 2, col = "orange")
   axis(side = 1, at = 1:length(selprop), labels = NA)
   for (k in 1:length(selprop)) {
-    axis(side = 1, at = k, labels = names(selprop)[k], las = 2, cex.axis = 0.8, tick = FALSE)
+    axis(
+      side = 1, at = k, labels = names(selprop)[k], las = 2,
+      col.axis = (mycolours[Asum + 1])[k],
+      cex.axis = 1, tick = FALSE
+    )
   }
   legend("right",
-    lty = c(rep(1, 4), 2, 2), lwd = mylwd, bg = "white", bty = "n",
+    lty = c(rep(1, 4), 2, 2), lwd = c(rep(mylwd, 4), 1, 1), bg = "white", bty = "n",
     col = c(mycolours[c(1, 4, 2, 3)], "darkred", "orange"), cex = 1.2,
     legend = c(
       paste0("True Negatives (N=", sum(Asum == 0), ")"),
@@ -77,20 +85,31 @@ mar <- c(5, 5, 5, 7)
       eval(parse(text = "expression(1-hat(pi))"))
     )
   )
-  mtext(text = "B", cex = 4, side = 3, at = -4, line = 0)
+  mtext(text = "B", cex = 2.5, side = 3, at = -4, line = 0)
+
+  # Incremental plot
+  PlotIncremental(incremental,
+    col = mycolours[Asum + 1], bty = "n",
+    ylab = expression(R^2), ylim = c(0, 0.8),
+    cex = 1.75, sfrac = 0.002
+  )
+  mtext(text = "C", cex = 2.5, side = 3, at = -4, line = 0)
   dev.off()
 }
-
+system(paste("pdfcrop --margin 10", plotname, plotname))
 
 # Constrained calibration
 system.time({
-  out_constr <- VariableSelection(xdata = simul$X, ydata = simul$Y, family = "gaussian", PFER_thr = PFER_thr, lambda.min.ratio = 1e-2)
+  out_constr <- VariableSelection(
+    xdata = simul$xdata, ydata = simul$ydata,
+    family = "gaussian", PFER_thr = PFER_thr, lambda.min.ratio = 1e-2
+  )
 })
 
 # Saving figure
 {
   pdf("Figures/1-illustrations/Constrained_calibration.pdf", width = 10, height = 11)
-  par(mfrow = c(3, 1), mar = c(1, 6, 4.2, 7))
+  par(mfrow = c(3, 1), mar = c(1, 6, 4.2, 10))
   b <- 1
   stability <- out_constr
   mat <- stability$S_2d
@@ -106,7 +125,8 @@ system.time({
   Q <- Q[ids]
 
   # Heatmap representation
-  Heatmap(mat[nrow(mat):1, ncol(mat):1], axes = FALSE)
+  # CalibrationPlot(out_constr)
+  Heatmap(t(mat[nrow(mat):1, ncol(mat):1]), axes = FALSE)
 
   # Identifying best pair of parameters
   graphics::abline(
@@ -133,21 +153,23 @@ system.time({
   graphics::mtext(text = expression(pi), side = 2, line = 3.5, cex = 1.5)
   graphics::mtext(text = expression(italic(q)), side = 3, line = 2.5, cex = 1.5)
   mtext(text = expression(lambda), cex = 1.5, side = 1, at = -3, line = 2.3)
-  mtext(text = "A", cex = 3.5, side = 3, at = -10, line = 0)
+  mtext(text = "A", cex = 3.5, side = 3, at = -7, line = 0)
 
   # Uncontrained curve
+  par(xaxs = "i", yaxs = "i")
   mat <- out$S_2d
   vect <- rev(apply(mat, 1, max, na.rm = TRUE))
   vect[is.infinite(vect)] <- NA
   plot(seq(1, length(vect)) - 0.5, vect,
     cex.lab = 1.5, pch = 19, cex = 0.25, col = "navy",
+    ylim = range(vect) + c(-50, 50),
     xaxt = "n", xlab = "", ylab = "Stability Score", xlim = c(0, length(vect)), bty = "n"
   )
   axis(side = 3, at = seq(1, length(vect)) - 0.5, labels = NA)
   axis(side = 1, at = c(1, length(vect)) - 0.5, labels = NA)
   lines(seq(1, length(vect)) - 0.5, vect, col = "navy")
   abline(v = length(vect) - ArgmaxId(out)[1] + 0.5, col = "navy", lty = 3)
-  mtext(text = "B", cex = 3.5, side = 3, at = -10, line = 0.5)
+  mtext(text = "B", cex = 3.5, side = 3, at = -7, line = 0.5)
 
   # Constrained curve
   mat <- out_constr$S_2d
@@ -176,6 +198,7 @@ system.time({
   Asum <- Asum[ids]
 
   # Selection proportions
+  par(xaxs = "r", yaxs = "r")
   par(mar = c(4.2, 6, 1, 7))
   plot(selprop,
     type = "h", col = mycolours[Asum + 1], las = 1, xaxt = "n", ylim = c(0, 1),
@@ -199,6 +222,6 @@ system.time({
       eval(parse(text = "expression(1-hat(pi))"))
     )
   )
-  mtext(text = "C", cex = 3.5, side = 3, at = -4, line = -2.7)
+  mtext(text = "C", cex = 3.5, side = 3, at = -4.3, line = -2.7)
   dev.off()
 }

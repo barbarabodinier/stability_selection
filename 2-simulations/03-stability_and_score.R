@@ -1,7 +1,7 @@
 rm(list = ls())
 setwd("~/Dropbox/Stability_selection/")
 
-library(focus)
+library(sharp)
 library(glassoFast)
 library(colorspace)
 
@@ -15,15 +15,21 @@ n <- 200
 pk <- 100
 topology <- "random"
 nu <- 0.02
-seed <- 12
+# seed <- 2
+seed <- 3
+# seed <- 2
+# seed <- 7
+# seed <- 11
 
 # Stability selection parameters
-PFER_thr <- 20
+PFER_thr <- 10
 K <- 100
 
 # Data simulation
 set.seed(seed)
-simul <- SimulateGraphical(n = n, pk = pk, topology = topology, nu = nu, output_matrices = TRUE)
+simul <- SimulateGraphical(n = n, pk = pk, topology = topology, 
+                           v_within = 1, nu_within = nu, 
+                           output_matrices = TRUE)
 
 
 ### Graphical models
@@ -46,7 +52,8 @@ perf_ebic <- data.frame(SelectionPerformance(theta = out_it$path[, , which.min(o
 
 # Stability selection
 system.time({
-  out_visited <- GraphicalModel(xdata = simul$data, Lambda = Lambda[Lambda >= min(Lambda_sub)], K = K, n_cores = 2)
+  out_visited <- GraphicalModel(xdata = simul$data, 
+                                Lambda = Lambda[Lambda >= min(Lambda_sub)])
 })
 perf_visited <- NULL
 for (i in 1:nrow(out_visited$S_2d)) {
@@ -68,7 +75,8 @@ myperf <- data.frame(SelectionPerformance(theta = Adjacency(out_visited), theta_
 # Constrained calibration
 system.time({
   out_constr <- GraphicalModel(
-    xdata = simul$data, Lambda = out_visited$Lambda[1:max(which(apply(out_visited$PFER_2d, 1, min) <= PFER_thr)), ],
+    xdata = simul$data, 
+    Lambda = out_visited$Lambda[1:max(which(apply(out_visited$PFER_2d, 1, min) <= PFER_thr)), ],
     K = K, PFER_thr = PFER_thr
   )
 })
@@ -141,7 +149,7 @@ mycolours <- c(
     legend = c(
       "Graphical LASSO", "BIC", expression(EBIC ~ (gamma * "=" * 0.5)),
       "Stability selection", "Unconstrained",
-      eval(parse(text = "expression('Constrained ('*PFER[MB]*'<20)')"))
+      eval(parse(text = "expression('Constrained ('*PFER[MB]*'<10)')"))
     )
   )
   mtext("B", side = 2, line = 3, at = 1, cex = 3, las = 1)
