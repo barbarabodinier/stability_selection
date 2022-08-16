@@ -1,7 +1,7 @@
 rm(list = ls())
 setwd("~/Dropbox/Stability_selection/")
 
-library(focus)
+library(sharp)
 library(colorspace)
 library(openxlsx)
 
