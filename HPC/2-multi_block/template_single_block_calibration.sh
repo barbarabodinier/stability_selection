@@ -7,6 +7,7 @@
 
 cd /work/bbodinie/stability_selection/Scripts/2-multi_block
 module load anaconda3/personal
+source activate selection
 
 simul_study_id={simul_study_id_input}
 topology={topology_input}

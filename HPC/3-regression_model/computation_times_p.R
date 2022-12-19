@@ -1,3 +1,4 @@
+library(fake)
 library(sharp)
 
 # Reading arguments
@@ -12,7 +13,7 @@ pi_list <- seq(0.6, 0.9, by = 0.05)
 params_list <- read.table(paste0("Simulation_parameters/Simulation_parameters_list_", simul_study_id, ".txt"), sep = "\t", header = TRUE, stringsAsFactors = FALSE)
 n <- params_list[params_id, "n"]
 nu_within <- params_list[params_id, "nu_within"]
-nu_xz <- params_list[params_id, "nu_xz"]
+nu_xy <- params_list[params_id, "nu_xz"]
 ev <- params_list[params_id, "ev"]
 pk <- rep(100, 10)
 p <- sum(pk)
@@ -22,12 +23,14 @@ n <- 500
 p_list <- c(1000, 2500, 5000, 7500, 10000)
 
 # Printing
-print(packageVersion("sharp"))
+print(paste0("fake: ", packageVersion("fake")))
+print(paste0("glmnet: ", packageVersion("glmnet")))
+print(paste0("sharp: ", packageVersion("sharp")))
 print(paste("ID of simulation study:", simul_study_id))
 print(paste("Number of observations:", n))
 print(paste("Number of variables:", pk))
 print(paste("Network density:", nu_within))
-print(paste("Proportion of contributing predictors:", nu_xz))
+print(paste("Proportion of contributing predictors:", nu_xy))
 print(paste("Proportion of explained variance:", ev))
 print(paste("Simulation ID:", simulation_id))
 
@@ -44,15 +47,32 @@ for (p in p_list) {
 
   # Simulation
   set.seed(seed)
-  simul <- SimulateRegression(
-    n = n, pk = p, nu_xz = nu_xz,
-    eta_set = 1, nu_zy = 1,
-    v_within = 1, nu_within = nu_within,
-    family = "gaussian", ev_xz = ev
+  xsimul <- SimulateGraphical(
+    n = n,
+    pk = p,
+    nu_within = nu_within,
+    nu_between = 0
   )
-  simul$ydata <- simul$ydata[, 1]
-  simul$theta <- simul$theta[, 1, drop = FALSE]
-  print(table(simul$theta))
+  simul <- SimulateRegression(
+    xdata = xsimul$data,
+    q = 1,
+    nu_xy = nu_xy,
+    beta_abs = 1,
+    beta_sign = c(-1, 1),
+    continuous = TRUE,
+    ev_xy = ev
+  )
+  # # Simulation
+  # set.seed(seed)
+  # simul <- SimulateRegression(
+  #   n = n, pk = p, nu_xz = nu_xz,
+  #   eta_set = 1, nu_zy = 1,
+  #   v_within = 1, nu_within = nu_within,
+  #   family = "gaussian", ev_xz = ev
+  # )
+  # simul$ydata <- simul$ydata[, 1]
+  # simul$theta <- simul$theta[, 1, drop = FALSE]
+  # print(table(simul$theta))
 
   # Lambda path
   Lambda_single <- LambdaGridRegression(xdata = simul$xdata, ydata = simul$ydata)

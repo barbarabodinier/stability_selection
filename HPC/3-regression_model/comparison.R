@@ -1,3 +1,4 @@
+library(fake)
 library(sharp)
 library(stabs)
 library(glmnet)
@@ -18,18 +19,20 @@ pi_list <- seq(0.6, 0.9, by = 0.05)
 params_list <- read.table(paste0("Simulation_parameters/Simulation_parameters_list_", simul_study_id, ".txt"), sep = "\t", header = TRUE, stringsAsFactors = FALSE)
 n <- params_list[params_id, "n"]
 nu_within <- params_list[params_id, "nu_within"]
-nu_xz <- params_list[params_id, "nu_xz"]
+nu_xy <- params_list[params_id, "nu_xz"]
 ev <- params_list[params_id, "ev"]
 pk <- rep(100, 10)
 p <- sum(pk)
 
 # Printing
-print(packageVersion("sharp"))
+print(paste0("fake: ", packageVersion("fake")))
+print(paste0("glmnet: ", packageVersion("glmnet")))
+print(paste0("sharp: ", packageVersion("sharp")))
 print(paste("ID of simulation study:", simul_study_id))
 print(paste("Number of observations:", n))
-print(paste("Number of variables:", pk))
+print(paste("Number of variables:", sum(pk)))
 print(paste("Network density:", nu_within))
-print(paste("Proportion of contributing predictors:", nu_xz))
+print(paste("Proportion of contributing predictors:", nu_xy))
 print(paste("Proportion of explained variance:", ev))
 print(paste("Simulation ID:", simulation_id))
 
@@ -41,22 +44,39 @@ print(filepath)
 
 # Simulation
 set.seed(seed)
-adjacency <- SimulateAdjacency(
+xsimul <- SimulateGraphical(
+  n = n,
   pk = pk,
   nu_within = nu_within,
   nu_between = 0
 )
-theta <- sharp:::SamplePredictors(pk = pk, nu = nu_xz)
-theta <- apply(theta, 1, sum)
 simul <- SimulateRegression(
-  n = n, pk = sum(pk),
-  adjacency_x = adjacency,
-  theta_xz = cbind(theta),
-  eta_set = 1,
-  v_within = 1,
-  family = "gaussian",
-  ev_xz = ev
+  xdata = xsimul$data,
+  q = 1,
+  nu_xy = nu_xy,
+  beta_abs = 1,
+  beta_sign = c(-1, 1),
+  continuous = TRUE,
+  ev_xy = ev
 )
+# # Simulation
+# set.seed(seed)
+#  adjacency <- SimulateAdjacency(
+#    pk = pk,
+#    nu_within = nu_within,
+#    nu_between = 0
+#  )
+#  theta <- sharp:::SamplePredictors(pk = pk, nu = nu_xz)
+#  theta <- apply(theta, 1, sum)
+#  simul <- SimulateRegression(
+#    n = n, pk = sum(pk),
+#    adjacency_x = adjacency,
+#    theta_xz = cbind(theta),
+#    eta_set = 1,
+#    v_within = 1,
+#    family = "gaussian",
+#    ev_xz = ev
+#  )
 print(table(simul$theta))
 
 # Lambda path
@@ -164,4 +184,4 @@ perf <- data.frame(c(pi = as.numeric(Argmax(out)[2]), SelectionPerformance(theta
 nperf <- rbind(nperf, c(perf, time = tmptime[1]))
 
 # Saving output object
-saveRDS(nperf, paste0(filepath, "Performances_nu", nu_xz, "_", nu_within, "_", simulation_id, "_PFER_thr_", PFER_thr, ".rds"))
+saveRDS(nperf, paste0(filepath, "Performances_nu", nu_xy, "_", nu_within, "_", simulation_id, "_PFER_thr_", PFER_thr, ".rds"))

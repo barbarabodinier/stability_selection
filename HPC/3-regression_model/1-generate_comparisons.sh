@@ -1,4 +1,4 @@
-PFER_thr=5
+PFER_thr=10
 
 for j in $(seq 1 1 2)
 do

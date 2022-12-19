@@ -7,6 +7,7 @@
 
 cd /work/bbodinie/stability_selection/Scripts/3-regression_model
 module load anaconda3/personal
+source activate selection
 
 simul_study_id=1
 seed=$PBS_ARRAY_INDEX

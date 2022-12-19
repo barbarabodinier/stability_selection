@@ -12,7 +12,7 @@ print(paste("Simulation ID:", i))
 setwd(paste0("../../Results/1-graphical_model/Computation_times_", simul_study_id, "_", topology))
 
 myfiles <- list.files(pattern = paste0("Computation_times_", i, "_"))
-myfiles <- myfiles[1:100]
+myfiles <- myfiles[1:min(length(myfiles), 1000)]
 print(length(myfiles))
 
 results <- NULL

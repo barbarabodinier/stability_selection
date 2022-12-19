@@ -1,3 +1,4 @@
+library(fake)
 library(sharp)
 
 # Reading arguments
@@ -20,6 +21,9 @@ nu <- params_list[params_id, "nu"]
 v_between <- params_list[params_id, "v_between"]
 
 # Printing
+print(paste0("fake: ", packageVersion("fake")))
+print(paste0("glmnet: ", packageVersion("glmnet")))
+print(paste0("sharp: ", packageVersion("sharp")))
 print(packageVersion("sharp"))
 print(paste("ID of simulation study:", simul_study_id))
 print(paste("Number of observations:", n))

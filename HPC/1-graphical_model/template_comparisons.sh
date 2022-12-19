@@ -7,6 +7,7 @@
 
 cd /work/bbodinie/stability_selection/Scripts/1-graphical_model
 module load anaconda3/personal
+source activate selection
 
 simul_study_id={simul_study_id_input}
 topology={topology_input}

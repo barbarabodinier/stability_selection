@@ -46,7 +46,6 @@ print(filepath)
 # Simulation
 set.seed(seed)
 simul <- SimulateGraphical(n = n, pk = pk, topology = topology, v_within = 1, nu_within = nu)
-C_hat <- cor(simul$data)
 
 # Lambda path
 Lambda_single <- LambdaGridGraphical(xdata = simul$data)
@@ -88,93 +87,73 @@ A <- ifelse(as.matrix(pulsar$est$path[[opt_pulsar]]) != 0, yes = 1, no = 0)
 perf <- data.frame(c(pi = NA, SelectionPerformance(theta = A, theta_star = simul$theta)))
 nperf <- rbind(nperf, c(perf, time = as.numeric(tmptime[1])))
 
-# Calibration by PFER (MB)
-foo_mb <- function() {
-  set.seed(1)
-  stab_mb <- stabsel(
-    x = simul$data, fitfun = glasso.graphical_model, sampling.type = "MB", mc.cores = 1,
-    cutoff = pi_list[k], PFER = PFER_thr, args.fitfun = list(lams = Lambda_single)
-  )
-  assign("stab_mb", stab_mb, envir = .GlobalEnv)
-}
-perf_mb <- NULL
-for (k in 1:length(pi_list)) {
-  print(k)
-  tmptime <- system.time(foo_mb())
-  edgelist <- cbind(gsub(" :.*", "", names(stab_mb$selected)), gsub(".*: ", "", names(stab_mb$selected)))
-  p <- ncol(simul$data)
-  A <- matrix(0, p, p)
-  colnames(A) <- rownames(A) <- colnames(simul$data)
-  A[edgelist] <- 1
-  A <- A + t(A)
-  perf <- data.frame(c(pi = pi_list[k], SelectionPerformance(theta = A, theta_star = simul$theta)))
-  perf_mb <- rbind(perf_mb, c(perf, time = tmptime[1]))
-}
-nperf <- rbind(nperf, perf_mb)
+# Stability selection (subsampling)
+time_unconstr_sub <- system.time({
+  out_unconstr_sub <- GraphicalModel(xdata = simul$data, 
+                                     Lambda = Lambda_single, 
+                                     start = "cold", 
+                                     PFER_method = "MB",
+                                     verbose=FALSE)
+})
 
-# Calibration by PFER (SS)
-foo_mb <- function() {
-  set.seed(1)
-  stab_mb <- stabsel(
-    x = simul$data, fitfun = glasso.graphical_model, sampling.type = "SS", assumption = "unimodal", mc.cores = 1,
-    cutoff = pi_list[k], PFER = PFER_thr, args.fitfun = list(lams = Lambda_single)
-  )
-  assign("stab_mb", stab_mb, envir = .GlobalEnv)
-}
-perf_mb <- NULL
-for (k in 1:length(pi_list)) {
-  print(k)
-  tmptime <- system.time(foo_mb())
-  edgelist <- cbind(gsub(" :.*", "", names(stab_mb$selected)), gsub(".*: ", "", names(stab_mb$selected)))
-  p <- ncol(simul$data)
-  A <- matrix(0, p, p)
-  colnames(A) <- rownames(A) <- colnames(simul$data)
-  A[edgelist] <- 1
-  A <- A + t(A)
-  perf <- data.frame(c(pi = pi_list[k], SelectionPerformance(theta = A, theta_star = simul$theta)))
-  perf_mb <- rbind(perf_mb, c(perf, time = tmptime[1]))
-}
-nperf <- rbind(nperf, perf_mb)
+# Stability selection (CPSS)
+time_unconstr_cpss <- system.time({
+  out_unconstr_cpss <- GraphicalModel(xdata = simul$data, 
+                                      Lambda = Lambda_single, 
+                                      start = "cold", 
+                                      PFER_method = "SS",
+                                      verbose=FALSE)
+})
 
-# Unconstrained calibration (subsampling)
-foo_unconstr <- function() {
-  out <- GraphicalModel(xdata = simul$data, Lambda = Lambda_single, start = "cold", PFER_method = "MB")
-  assign("out", out, envir = .GlobalEnv)
-}
-tmptime <- system.time(foo_unconstr())
-A <- Adjacency(out)
-perf <- data.frame(c(pi = as.numeric(Argmax(out)[2]), SelectionPerformance(theta = A, theta_star = simul$theta)))
-nperf <- rbind(nperf, c(perf, time = tmptime[1]))
+# Calibration by error control
+perf_mb <- ErrorControl(out_unconstr_sub, simul = simul, time = as.numeric(time_unconstr_sub[1]))
+perf_ss <- ErrorControl(out_unconstr_cpss, simul = simul, time = as.numeric(time_unconstr_cpss[1]))
+nperf <- rbind(nperf, perf_mb, perf_ss)
 
-# Unconstrained calibration (simultaneous selection in complementary pairs)
-foo_unconstr <- function() {
-  out <- GraphicalModel(xdata = simul$data, Lambda = Lambda_single, start = "cold", PFER_method = "SS")
-  assign("out", out, envir = .GlobalEnv)
-}
-tmptime <- system.time(foo_unconstr())
-A <- Adjacency(out)
-perf <- data.frame(c(pi = as.numeric(Argmax(out)[2]), SelectionPerformance(theta = A, theta_star = simul$theta)))
-nperf <- rbind(nperf, c(perf, time = tmptime[1]))
+# Unconstrained calibration
+perf_sub <- data.frame(c(
+  pi = as.numeric(Argmax(out_unconstr_sub)[2]),
+  SelectionPerformance(theta = out_unconstr_sub, theta_star = simul$theta),
+  time = as.numeric(time_unconstr_sub[1])
+))
+perf_cpss <- data.frame(c(
+  pi = as.numeric(Argmax(out_unconstr_cpss)[2]),
+  SelectionPerformance(theta = out_unconstr_cpss, theta_star = simul$theta),
+  time = as.numeric(time_unconstr_cpss[1])
+))
 
-# Constrained calibration (MB)
-foo_unconstr <- function() {
-  out <- GraphicalModel(xdata = simul$data, Lambda = Lambda_single, start = "cold", PFER_method = "MB", PFER_thr = PFER_thr)
-  assign("out", out, envir = .GlobalEnv)
-}
-tmptime <- system.time(foo_unconstr())
-A <- Adjacency(out)
-perf <- data.frame(c(pi = as.numeric(Argmax(out)[2]), SelectionPerformance(theta = A, theta_star = simul$theta)))
-nperf <- rbind(nperf, c(perf, time = tmptime[1]))
+# Constrained stability selection (MB)
+time_constr_sub <- system.time({
+  out_constr_sub <- GraphicalModel(xdata = simul$data, 
+                                   Lambda = Lambda_single, 
+                                   start = "cold", 
+                                   PFER_method = "MB",
+                                   PFER_thr = PFER_thr,
+                                   verbose=FALSE)
+})
 
-# Constrained calibration (SS)
-foo_unconstr <- function() {
-  out <- GraphicalModel(xdata = simul$data, Lambda = Lambda_single, start = "cold", PFER_method = "SS", PFER_thr = PFER_thr)
-  assign("out", out, envir = .GlobalEnv)
-}
-tmptime <- system.time(foo_unconstr())
-A <- Adjacency(out)
-perf <- data.frame(c(pi = as.numeric(Argmax(out)[2]), SelectionPerformance(theta = A, theta_star = simul$theta)))
-nperf <- rbind(nperf, c(perf, time = tmptime[1]))
+# Constrained stability selection (SS)
+time_constr_cpss <- system.time({
+  out_constr_cpss <- GraphicalModel(xdata = simul$data, 
+                                    Lambda = Lambda_single, 
+                                    start = "cold", 
+                                    PFER_method = "SS",
+                                    PFER_thr = PFER_thr,
+                                    verbose=FALSE)
+})
+
+# Constrained calibration
+perf_constr_mb <- data.frame(c(
+  pi = as.numeric(Argmax(out_constr_sub)[2]),
+  SelectionPerformance(theta = out_constr_sub, theta_star = simul$theta),
+  time = as.numeric(time_constr_sub[1])
+))
+perf_constr_ss <- data.frame(c(
+  pi = as.numeric(Argmax(out_constr_cpss)[2]),
+  SelectionPerformance(theta = out_constr_cpss, theta_star = simul$theta),
+  time = as.numeric(time_constr_cpss[1])
+))
+nperf <- rbind(nperf, perf_sub, perf_cpss, perf_constr_mb, perf_constr_ss)
 
 # Re-formatting output object
 rownames(nperf)[1:4] <- c("AIC", "BIC", "EBIC", "StARS")

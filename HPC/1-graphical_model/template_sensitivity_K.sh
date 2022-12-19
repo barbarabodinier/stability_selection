@@ -4,9 +4,11 @@
 #PBS -N simul_K
 #PBS -q med-bio
 #PBS -J 1-1100
+#PBS -k oe
 
 cd /work/bbodinie/stability_selection/Scripts/1-graphical_model
 module load anaconda3/personal
+source activate selection
 
 simul_study_id={simul_study_id_input}
 topology={topology_input}

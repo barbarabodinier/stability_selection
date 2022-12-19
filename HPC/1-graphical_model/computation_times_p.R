@@ -1,3 +1,4 @@
+library(fake)
 library(sharp)
 
 # Reading arguments
@@ -18,7 +19,9 @@ n <- 500
 p_list <- c(100, 250, 500, 750, 1000)
 
 # Printing
-print(packageVersion("sharp"))
+print(paste0("fake: ", packageVersion("fake")))
+print(paste0("glmnet: ", packageVersion("glmnet")))
+print(paste0("sharp: ", packageVersion("sharp")))
 print(paste("ID of simulation study:", simul_study_id))
 print(paste("Number of observations:", n))
 print(paste("Numbers of variables:"))
