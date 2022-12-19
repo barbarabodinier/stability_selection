@@ -1,5 +1,4 @@
 rm(list = ls())
-setwd("~/Dropbox/Stability_selection/")
 
 library(sharp)
 library(colorspace)
@@ -49,7 +48,7 @@ mytable <- cbind(rep(c("AIC", "BIC", "EBIC", "StARS", rep("", 3), "MB", rep("", 
 mytable[is.na(mytable)] <- ""
 mytable <- cbind(c(rep("", 10), "Low", rep("", 11), rep("", 10), "Intermediate", rep("", 11), rep("", 10), "High", rep("", 11)), mytable)
 
-write.xlsx(mytable, paste0("Tables/2-simulations/Table_precision_recall_", simul_study_id, "_", topology, "_PFER_thr_", PFER_thr, ".xlsx"),
+write.xlsx(as.data.frame(mytable), paste0("Tables/2-simulations/Table_precision_recall_", simul_study_id, "_", topology, "_PFER_thr_", PFER_thr, ".xlsx"),
   rowNames = FALSE, colNames = TRUE
 )
 write.table(mytable, paste0("Tables/2-simulations/Table_precision_recall_", simul_study_id, "_", topology, "_PFER_thr_", PFER_thr, ".txt"),

@@ -1,5 +1,4 @@
 rm(list = ls())
-setwd("~/Dropbox/Stability_selection/")
 
 library(sharp)
 library(colorspace)

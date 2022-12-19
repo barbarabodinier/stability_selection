@@ -1,5 +1,4 @@
 rm(list = ls())
-setwd("~/Dropbox/Stability_selection/")
 
 library(sharp)
 library(plotrix)
@@ -51,7 +50,7 @@ metric <- "F1_score"
     # Making boxplots
     plotCI(
       x = log(sapply(mylist_time, median)), y = sapply(mylist, median), ui = sapply(mylist, quantile, probs = 0.95), li = sapply(mylist, quantile, probs = 0.05),
-      col = mycolours, pch = 18, xlab = "Time (s)", ylab = myylab, cex.lab = 1.5, cex = 1, sfrac = 0.005, las = 1, bty="n", 
+      col = mycolours, pch = 18, xlab = "Time (s)", ylab = myylab, cex.lab = 1.5, cex = 1, sfrac = 0.005, las = 1, bty = "n",
       xlim = c(0, log(100000)), ylim = c(0, 1), xaxt = "n", main = c("Low", "Intermediate", "High")[simul_id], cex.main = 1.5
     )
     mtext(text = LETTERS[simul_id], side = 2, at = 1, line = 3, cex = 2, las = 1)

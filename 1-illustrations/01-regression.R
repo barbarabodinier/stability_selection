@@ -1,21 +1,23 @@
 rm(list = ls())
-setwd("~/Dropbox/Stability_selection/")
 
+library(fake)
 library(sharp)
 
 # Parameters
 n <- 100
 pk <- 50
-seed <- 2
+seed <- 5
 PFER_thr <- 5
+ev <- 0.7
+q <- 10
 
 # Simulation
 set.seed(seed)
 simul <- SimulateRegression(
-  n = n, pk = pk, theta_xz = cbind(c(rep(1, 10), rep(0, 40))),
-  eta = cbind(1), v_within = c(1),
-  adjacency_x = matrix(0, ncol = pk, nrow = pk),
-  family = "gaussian", continuous = TRUE, ev_xz = 0.7
+  n = n, pk = pk,
+  theta = cbind(c(rep(1, q), rep(0, pk - q))),
+  beta_abs = c(0.7, 1), beta_sign = c(-1, 1), continuous = TRUE,
+  family = "gaussian", ev_xy = ev
 )
 table(simul$theta)
 
@@ -162,7 +164,7 @@ system.time({
   vect[is.infinite(vect)] <- NA
   plot(seq(1, length(vect)) - 0.5, vect,
     cex.lab = 1.5, pch = 19, cex = 0.25, col = "navy",
-    ylim = range(vect) + c(-50, 50),
+    ylim = range(vect, na.rm = TRUE) + c(-50, 50),
     xaxt = "n", xlab = "", ylab = "Stability Score", xlim = c(0, length(vect)), bty = "n"
   )
   axis(side = 3, at = seq(1, length(vect)) - 0.5, labels = NA)

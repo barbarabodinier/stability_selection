@@ -1,6 +1,6 @@
 rm(list = ls())
-setwd("~/Dropbox/Stability_selection/")
 
+library(fake)
 library(sharp)
 
 # Reading arguments
@@ -8,7 +8,7 @@ seed <- 1
 PFER_thr <- 5
 pi_list <- seq(0.6, 0.9, by = 0.05)
 pk <- rep(100, 10)
-nu_xz <- 0.02
+nu_xy <- 0.02
 
 nu_within_list <- c(0, 0.02)
 for (k in 1:length(nu_within_list)) {
@@ -17,20 +17,20 @@ for (k in 1:length(nu_within_list)) {
 
   # Simulation
   set.seed(seed)
-  adjacency <- SimulateAdjacency(
+  xsimul <- SimulateGraphical(
+    n = 500,
     pk = pk,
     nu_within = nu_within,
     nu_between = 0
   )
-  theta <- sharp:::SamplePredictors(pk = pk, q = length(pk), nu = nu_xz, orthogonal = TRUE)
-  theta <- apply(theta, 1, sum)
   simul <- SimulateRegression(
-    n = 500, pk = sum(pk),
-    adjacency_x = adjacency,
-    theta_xz = cbind(theta),
-    v_within = 1,
-    eta_set = 1,
-    family = "gaussian", ev_xz = 0.4
+    xdata = xsimul$data,
+    q = 1,
+    nu_xy = nu_xy,
+    beta_abs = 1,
+    beta_sign = 1,
+    continuous = FALSE,
+    ev_xy = 0.4
   )
   print(table(simul$theta))
 
@@ -41,8 +41,8 @@ for (k in 1:length(nu_within_list)) {
     pdf(plotname, width = 8, height = 8)
     par(mar = c(5, 5, 5, 7))
     Heatmap(mycor,
-      col = c("darkblue", "white", "firebrick3"),
-      legend_range = c(-1, 1), legend_length = 300, legend = TRUE, axes = FALSE
+      col = c("navy", "white", "darkred"),
+      legend_range = c(-1, 1), legend = TRUE, axes = FALSE
     )
     dev.off()
   }

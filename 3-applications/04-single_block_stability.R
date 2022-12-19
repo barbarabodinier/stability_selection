@@ -33,7 +33,7 @@ omicannot <- rbind(cpgannot, ttxannot)
 PFER_thr <- 70
 system.time({
   out <- GraphicalModel(
-    xdata = cpg, 
+    xdata = cpg,
     PFER_thr = PFER_thr, max_density = 0.2
   )
 })
@@ -58,19 +58,20 @@ adjacency <- Adjacency(out)
 node_label <- paste(cpgannot$alt.name, "\n", cpgannot$name)
 mygraph <- Graph(
   adjacency = adjacency, node_colour = lighten("skyblue", amount = 0.4),
-  node_label = node_label, node_shape = "square")
-V(mygraph)$size <- 0.7 * V(mygraph)$size
+  node_label = node_label, node_shape = "square"
+)
+V(mygraph)$label.cex <- 0.5
+V(mygraph)$size <- 3
 
 # Saving figure
 myasp <- 1
 myseed <- 1
 {
   pdf(paste0("Figures/3-applications/Methylation_graph_platforms_PFER_", PFER_thr, ".pdf"),
-      width = 14, height = myasp * 14
+    width = 14, height = myasp * 14
   )
   par(mar = rep(0, 4))
   set.seed(myseed)
   plot(mygraph, layout = layout_with_fr(mygraph), asp = myasp)
   dev.off()
 }
-

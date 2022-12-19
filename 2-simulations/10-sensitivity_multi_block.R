@@ -1,7 +1,5 @@
 rm(list = ls())
-setwd("~/Dropbox/Stability_selection/")
 
-library(focus)
 library(colorspace)
 library(MASS)
 library(openxlsx)
@@ -52,10 +50,10 @@ mytable[5, 1] <- "Multi"
 mytable[6, 1] <- "parameters"
 mytable[9, 1] <- "Multi"
 mytable[10, 1] <- "block"
-mytable[,3]=c(rep(c("Overall", "Within 1", "Between", "Within 2"), 8))
+mytable[, 3] <- c(rep(c("Overall", "Within 1", "Between", "Within 2"), 8))
 
 # Saving table
-write.xlsx(mytable, file = "Tables/2-simulations/Sensitivity_multi_block_table.xlsx")
+write.xlsx(as.data.frame(mytable), file = "Tables/2-simulations/Sensitivity_multi_block_table.xlsx")
 write.table(mytable,
   file = "Tables/2-simulations/Sensitivity_multi_block_table.txt",
   quote = FALSE, eol = "@@ \n", sep = "&", row.names = FALSE

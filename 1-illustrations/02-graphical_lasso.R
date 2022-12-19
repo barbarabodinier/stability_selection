@@ -1,6 +1,6 @@
 rm(list = ls())
-setwd("~/Dropbox/Stability_selection/")
 
+library(fake)
 library(sharp)
 library(igraph)
 
@@ -33,6 +33,7 @@ A <- Adjacency(out)
 perf <- SelectionPerformance(A, simul$theta)
 perf
 mygraph <- SelectionPerformanceGraph(A, simul$theta)
+V(mygraph)$label <- rep("", length(V(mygraph)))
 
 # Saving figure
 {
@@ -45,7 +46,7 @@ mygraph <- SelectionPerformanceGraph(A, simul$theta)
 
   # Graph representation of the detected and missed edges
   par(mar = c(2, 4, 2, 0))
-  set.seed(1)
+  set.seed(2)
   plot(mygraph, layout = layout_with_fr(mygraph))
   mtext(text = "E", cex = 4, side = 3, at = -1.2, line = -3)
   legend(

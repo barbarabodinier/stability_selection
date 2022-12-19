@@ -104,7 +104,8 @@ mygraph <- Graph(
   adjacency = adjacency, node_colour = c(rep("skyblue", ncol(cpg)), rep("lightsalmon", ncol(ttx))),
   node_label = node_label, node_shape = c(rep("square", ncol(cpg)), rep("circle", ncol(ttx)))
 )
-V(mygraph)$size <- 0.7 * V(mygraph)$size
+V(mygraph)$label.cex <- 0.5
+V(mygraph)$size <- 3
 
 # Saving figure
 myasp <- 0.7
@@ -135,7 +136,8 @@ mygraph <- Graph(
   adjacency = adjacency, node_colour = colours[chr_number],
   node_label = node_label, node_shape = c(rep("square", ncol(cpg)), rep("circle", ncol(ttx)))
 )
-V(mygraph)$size <- 0.7 * V(mygraph)$size
+V(mygraph)$label.cex <- 0.5
+V(mygraph)$size <- 3
 
 # Saving figure
 myasp <- 0.7
@@ -241,7 +243,8 @@ mygraph <- Graph(
   adjacency = adjacency, node_colour = mynode_colours,
   node_label = node_label, node_shape = c(rep("square", ncol(cpg)), rep("circle", ncol(ttx)))
 )
-V(mygraph)$size <- 0.7 * V(mygraph)$size
+V(mygraph)$label.cex <- 0.5
+V(mygraph)$size <- 3
 
 # Saving figure
 myasp <- 0.7

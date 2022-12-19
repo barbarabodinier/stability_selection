@@ -1,5 +1,4 @@
 rm(list = ls())
-setwd("~/Dropbox/Stability_selection/")
 
 library(sharp)
 library(colorspace)
@@ -18,9 +17,9 @@ mypch <- c(rep(17, length(pi_list)), rep(17, length(pi_list)), 18, 18, 18, 18)
 dimensionality <- c("Low", "Intermediate", "High")
 
 # Saving table
-for (simul_id in 1:3) {
+for (simul_id in 3) {
   performances <- readRDS(paste0("Results/2-simulations/3-regression_model/Simulations_", simul_study_id, "/Performances_", simul_id, "_merged_PFER_thr_", PFER_thr, ".rds"))
-  
+
   tmpmedian <- apply(performances, c(1, 2), FUN = function(x) {
     median(as.numeric(x))
   })
@@ -28,7 +27,7 @@ for (simul_id in 1:3) {
   mymedian[, c("precision", "recall", "F1_score")] <- formatC(tmpmedian[, c("precision", "recall", "F1_score")], format = "f", digits = 3)
   mymedian[, c("TP", "FP", "FN", "time")] <- formatC(tmpmedian[, c("TP", "FP", "FN", "time")], format = "f", digits = 0)
   mymedian <- mymedian[, c("pi", "TP", "FP", "FN", "precision", "recall", "F1_score", "time")]
-  
+
   tmpiqr <- apply(performances[, -1, ], c(1, 2), FUN = function(x) {
     IQR(as.numeric(x))
   })
@@ -36,36 +35,26 @@ for (simul_id in 1:3) {
   myiqr[, c("precision", "recall", "F1_score")] <- formatC(tmpiqr[, c("precision", "recall", "F1_score")], format = "f", digits = 3)
   myiqr[, c("TP", "FP", "FN", "time")] <- formatC(tmpiqr[, c("TP", "FP", "FN", "time")], format = "f", digits = 0)
   myiqr <- myiqr[, c("TP", "FP", "FN", "precision", "recall", "F1_score", "time")]
-  
+
   mytable <- matrix(paste0(mymedian[, -1], " [", myiqr, "]"), ncol = ncol(mymedian) - 1)
   mytable <- cbind(mymedian[, 1], mytable)
   colnames(mytable) <- colnames(mymedian)
   assign(paste0("mytable", simul_id), mytable)
 }
-mytable <- rbind(mytable1, mytable2, mytable3)
-mytable <- cbind(rep(c("lambda.min", "lambda.1se", rep("", 3), "MB", rep("", 6), "SS", rep("", 3), "Subsampling", "CPSS", "MB", "SS"), 3), mytable)
-mytable[is.na(mytable)] <- ""
-mytable <- cbind(c(rep("", 9), "Low", rep("", 10), rep("", 9), "Intermediate", rep("", 10), rep("", 9), "High", rep("", 10)), mytable)
-
-write.xlsx(mytable, paste0("Tables/2-simulations/Table_precision_recall_regression_", simul_study_id, "_PFER_thr_", PFER_thr, ".xlsx"),
-           rowNames = FALSE, colNames = TRUE
-)
-write.table(mytable, paste0("Tables/2-simulations/Table_precision_recall_regression_", simul_study_id, "_PFER_thr_", PFER_thr, ".txt"),
-            row.names = FALSE, col.names = TRUE, quote = FALSE, eol = "££\n", sep = "&"
-)
 
 # Saving figure
-{ pdf(paste0("Figures/2-simulations/Boxplot_regression_", simul_study_id, "_PFER_thr_", PFER_thr, ".pdf"),
-      width = 12, height = 4.5
-)
+{
+  pdf(paste0("Figures/2-simulations/Boxplot_regression_", simul_study_id, "_PFER_thr_", PFER_thr, ".pdf"),
+    width = 12, height = 4.5
+  )
   par(mar = c(7, 5, 3, 1), mfrow = c(1, 3))
-  metric_list=c("F1_score","Precision","Recall")
+  metric_list <- c("F1_score", "Precision", "Recall")
   for (metric in metric_list) {
-    myylab=metric
+    myylab <- metric
     if (myylab == "F1_score") {
       myylab <- eval(parse(text = "expression(F[1]*'-score')"))
     } else {
-      metric=tolower(metric) 
+      metric <- tolower(metric)
     }
     for (simul_id in 3) {
       performances <- readRDS(paste0("Results/2-simulations/3-regression_model/Simulations_", simul_study_id, "/Performances_", simul_id, "_merged_PFER_thr_", PFER_thr, ".rds"))
@@ -79,7 +68,7 @@ write.table(mytable, paste0("Tables/2-simulations/Table_precision_recall_regress
       boxplot(
         at = xseq, mylist, col = mycolours, boxcol = "white", whiskcol = mycolours, staplecol = mycolours,
         whisklty = 1, range = 0, las = 2, main = "", cex.main = 1.5,
-        ylab = myylab, cex.lab = 1.5, xaxt = "n", ylim = c(0, 1), frame = "F", xlim=c(1, max(xseq))
+        ylab = myylab, cex.lab = 1.5, xaxt = "n", ylim = c(0, 1), frame = "F", xlim = c(1, max(xseq))
       )
       # mtext(text = LETTERS[which(tolower(metric_list)==tolower(metric))+1], side = 2, at = 1.1, line = 3, cex = 2, las = 1)
       abline(h = axTicks(2), lty = 3, col = "grey")
@@ -119,4 +108,5 @@ write.table(mytable, paste0("Tables/2-simulations/Table_precision_recall_regress
       abline(v = c(4, 12, 20), lty = 3, col = "black")
     }
   }
-  dev.off() }
+  dev.off()
+}

@@ -1,5 +1,4 @@
 rm(list = ls())
-setwd("~/Dropbox/Stability_selection/")
 
 library(sharp)
 library(colorspace)
@@ -63,7 +62,7 @@ mytable <- cbind(
   rep(c("Single-block", rep("", 3), "Multi-block", rep("", 3)), 3),
   rep(c("Overall", "Within-block 1", "Between-block", "Within-block 2"), 6), mytable
 )
-write.xlsx(mytable, file = "Tables/2-simulations/Single_multi_block_table.xlsx")
+write.xlsx(as.data.frame(mytable), file = "Tables/2-simulations/Single_multi_block_table.xlsx")
 write.table(mytable,
   file = "Tables/2-simulations/Single_multi_block_table.txt",
   quote = FALSE, eol = "@@ \n", sep = "&", row.names = FALSE
